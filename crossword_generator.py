@@ -22,30 +22,32 @@ def get_word(type='cities', length=None, level=0):
     except StopIteration as e:
         return None
 
-will_fit = {ACROSS: lambda x, y, l: x>=0 and y>=0 and width >= y + l - 1,
-            DOWN: lambda x, y, l: x>=0 and y>=0 and height >=x + 1 - 1}
+will_fit = {ACROSS: lambda x, y, l: x>=0 and y>=0 and width > y + l - 1,
+            DOWN: lambda x, y, l: x>=0 and y>=0 and height > x + l - 1}
 
 def next_pos_across(x, y, l):
-    if (y + 1) < l and (y+1) < width:
-        yield (x, y+1)
-    else:
-        raise StopIteration
+    print("calling next_pos_across {}".format((x, y, l)))
+    while (y) < width:
+        yield (x, y)
+        y += 1
+
 
 def next_pos_down(x, y, l):
-    if (x + 1) < l and (x + 1) < height:
-        yield (x+1, y)
-    else:
-        raise StopIteration
+    print("calling next_pos_down {}".format((x, y, l)))
+    while (x) < height:
+        yield (x, y)
+        x += 1
 
 
-next_pos = {ACROSS: next_pos_across,
+
+calculate_next_pos = {ACROSS: next_pos_across,
             DOWN: next_pos_down}
 
 
 def print_matrix():
     for i in range(width):
         print("-------------------------------------")
-        print(" | ".join(puzzle_matrix[i]))
+        print("{}) ".format(i) + " | ".join(puzzle_matrix[i]))
 
 
 def fill_word_in_matrix(word, orientation=ACROSS, start_elem=(0,0)):
@@ -60,6 +62,26 @@ def fill_word_in_matrix(word, orientation=ACROSS, start_elem=(0,0)):
             puzzle_matrix[i][j] = l
             i +=1
 
+def check_overlap(word, orientation, x, y):
+    i, j = x, y
+    next_pos = calculate_next_pos[orientation](i, j, len(word))
+    for a in word:
+        try:
+            (i, j) = next(next_pos)
+            print("i={} j={}".format(i,j))
+        except StopIteration as e:
+            print("stop iteration received after will fit word={} i, j={}".format(word, (i, j)))
+
+        if puzzle_matrix[i][j] != " ":
+            if puzzle_matrix[i][j] == a:
+                continue
+            else:
+                print("Overlap of letter {} with {} at {}".format(a,puzzle_matrix[i][j], (i,j)))
+                return True
+    return False
+
+def find_all_char_pos(s, ch):
+    return [i for i, ltr in enumerate(s) if ltr == ch]
 
 def find_best_fit(word):
     """
@@ -85,6 +107,7 @@ def find_best_fit(word):
         pos = int(not filled_pos[key]['orientation'])
         # find the intersecting letters between the two words
         intersect = set.intersection(set(filled_pos[key]['word']), set(word))
+        print("trying to intersect filled_word={} with word={}".format(filled_pos[key]['word'], word))
         if len(intersect) == 0:
             # no letters matched.. lets find the next
             continue
@@ -92,32 +115,60 @@ def find_best_fit(word):
             a = [-10, -10]
             print("intersecting letters={}".format(intersect))
             for letter in intersect:
-                index = filled_pos[key]['word'].find(letter)
-                print("location of the letter={} in word={} is {}".format(letter, filled_pos[key]['word'], index))
-                a[pos] = key[pos] + index
-                index2 = word.find(letter)
-                print("location of the letter={} in word={} is {}".format(letter, word, index2))
-                a[filled_pos[key]['orientation']] = key[int(not pos)] - index2
-
-                print("looking for match in location={}".format(a))
-                print("will_fit={}".format(will_fit[pos](a[0], a[1], len(word))))
-                if will_fit[pos](a[0], a[1], len(word)):
-                    fill_word_in_matrix(word, pos, (a[0], a[1]))
-                    return
+                indexes1 = find_all_char_pos(filled_pos[key]['word'], letter)
+                for index in indexes1:
+                    # index = filled_pos[key]['word'].find(letter)
+                    print("location of the letter={} in word={} is {}".format(letter, filled_pos[key]['word'], index))
+                    a[pos] = key[pos] + index
+                    indexes2 = find_all_char_pos(word, letter)
+                    for index2 in indexes2:
+                        # index2 = word.find(letter)
+                        print("location of the letter={} in word={} is {}".format(letter, word, index2))
+                        a[filled_pos[key]['orientation']] = key[int(not pos)] - index2
+                        print("looking for match in location={}".format(a))
+                        print("will_fit={}".format(will_fit[pos](a[0], a[1], len(word))))
+                        if will_fit[pos](a[0], a[1], len(word)):
+                            if not check_overlap(word, pos, a[0], a[1]):
+                                fill_word_in_matrix(word, pos, (a[0], a[1]))
+                                return
 
 
 def generate_puzzle(type, level):
     # first_word = get_word(type='cities', length=8, level=level)
+    print("****************************************")
+    second_word = "MITHILA"
+    find_best_fit(second_word)
+    print_matrix()
+
+    print("****************************************")
     first_word = "MURUGA"
     find_best_fit(first_word)
     print_matrix()
 
-    second_word = "MITHILA"
-    find_best_fit(second_word)
-    print_matrix()
-    # for the biggest word pick the corners across/down
 
+    # for the biggest word pick the corners across/down
+    print("****************************************")
     third_word = "LATHA"
+    find_best_fit(third_word)
+    print_matrix()
+
+    print("****************************************")
+    third_word = "HANUMAN"
+    find_best_fit(third_word)
+    print_matrix()
+
+    print("****************************************")
+    third_word = "ISHWAR"
+    find_best_fit(third_word)
+    print_matrix()
+
+    print("****************************************")
+    third_word = "KAILASH"
+    find_best_fit(third_word)
+    print_matrix()
+
+    print("****************************************")
+    third_word = "AGNI"
     find_best_fit(third_word)
     print_matrix()
 
