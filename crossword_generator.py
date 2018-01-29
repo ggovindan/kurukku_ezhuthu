@@ -4,7 +4,7 @@ import random
 
 client = MongoClient('mongodb://localhost:27017/')
 
-width, height = 11, 11
+width, height = 20, 20
 
 puzzle_matrix = [[" " for i in range(width)] for j in range(height)]
 
@@ -46,13 +46,13 @@ calculate_next_pos = {ACROSS: next_pos_across,
 
 def print_matrix():
     for i in range(width):
-        print("-------------------------------------")
+        print("------------------------------------------------------------------------------------")
         print("{}) ".format(i) + " | ".join(puzzle_matrix[i]))
 
 
 def fill_word_in_matrix(word, orientation=ACROSS, start_elem=(0,0)):
     i, j = start_elem
-    filled_pos[(i, j)] = {'word': word, 'orientation': orientation}
+    filled_pos[word] = {'position': (i, j), 'orientation': orientation}
     if orientation == ACROSS:
         for l in word:
             puzzle_matrix[i][j] = l
@@ -106,8 +106,8 @@ def find_best_fit(word):
         #the orientation for this word should be perpendicular to the one we are trying to match
         pos = int(not filled_pos[key]['orientation'])
         # find the intersecting letters between the two words
-        intersect = set.intersection(set(filled_pos[key]['word']), set(word))
-        print("trying to intersect filled_word={} with word={}".format(filled_pos[key]['word'], word))
+        intersect = set.intersection(set(key), set(word))
+        print("trying to intersect filled_word={} with word={}".format(key, word))
         if len(intersect) == 0:
             # no letters matched.. lets find the next
             continue
@@ -115,16 +115,17 @@ def find_best_fit(word):
             a = [-10, -10]
             print("intersecting letters={}".format(intersect))
             for letter in intersect:
-                indexes1 = find_all_char_pos(filled_pos[key]['word'], letter)
+                indexes1 = find_all_char_pos(key, letter)
                 for index in indexes1:
                     # index = filled_pos[key]['word'].find(letter)
-                    print("location of the letter={} in word={} is {}".format(letter, filled_pos[key]['word'], index))
-                    a[pos] = key[pos] + index
+                    print("location of the letter={} in word={} is {}".format(letter, key, index))
+                    filled_word_pos = filled_pos[key]['position']
+                    a[pos] = filled_word_pos[pos] + index
                     indexes2 = find_all_char_pos(word, letter)
                     for index2 in indexes2:
                         # index2 = word.find(letter)
                         print("location of the letter={} in word={} is {}".format(letter, word, index2))
-                        a[filled_pos[key]['orientation']] = key[int(not pos)] - index2
+                        a[filled_pos[key]['orientation']] = filled_word_pos[int(not pos)]  - index2
                         print("looking for match in location={}".format(a))
                         print("will_fit={}".format(will_fit[pos](a[0], a[1], len(word))))
                         if will_fit[pos](a[0], a[1], len(word)):
@@ -136,29 +137,34 @@ def find_best_fit(word):
 def generate_puzzle(type, level):
     # first_word = get_word(type='cities', length=8, level=level)
     print("****************************************")
-    second_word = "MITHILA"
+    second_word = "KANCHIPURAN"
     find_best_fit(second_word)
     print_matrix()
 
     print("****************************************")
-    first_word = "MURUGA"
+    second_word = "THIRUVANNAMALAI"
+    find_best_fit(second_word)
+    print_matrix()
+
+    print("****************************************")
+    first_word = "THANJAVUR"
     find_best_fit(first_word)
     print_matrix()
 
 
     # for the biggest word pick the corners across/down
     print("****************************************")
-    third_word = "LATHA"
+    third_word = "MADURAI"
     find_best_fit(third_word)
     print_matrix()
 
     print("****************************************")
-    third_word = "HANUMAN"
+    third_word = "KANYAKUMARI"
     find_best_fit(third_word)
     print_matrix()
 
     print("****************************************")
-    third_word = "ISHWAR"
+    third_word = "KUMBAKONAM"
     find_best_fit(third_word)
     print_matrix()
 
@@ -169,6 +175,11 @@ def generate_puzzle(type, level):
 
     print("****************************************")
     third_word = "AGNI"
+    find_best_fit(third_word)
+    print_matrix()
+
+    print("****************************************")
+    third_word = "PARVATHY"
     find_best_fit(third_word)
     print_matrix()
 
