@@ -26,14 +26,12 @@ will_fit = {ACROSS: lambda x, y, l: x>=0 and y>=0 and width > y + l - 1,
             DOWN: lambda x, y, l: x>=0 and y>=0 and height > x + l - 1}
 
 def next_pos_across(x, y, l):
-    print("calling next_pos_across {}".format((x, y, l)))
     while (y) < width:
         yield (x, y)
         y += 1
 
 
 def next_pos_down(x, y, l):
-    print("calling next_pos_down {}".format((x, y, l)))
     while (x) < height:
         yield (x, y)
         x += 1
@@ -82,6 +80,15 @@ def check_overlap(word, orientation, x, y):
 
 def find_all_char_pos(s, ch):
     return [i for i, ltr in enumerate(s) if ltr == ch]
+
+
+# An efficient way to calculate blocks of available memory in puzzle_matrix
+def calculate_free_memory():
+    # 1. Get all the starting positions of words filled in so far.
+    # 2. start with (0,0) and increment i,j to the value where the first word is written.
+    # 3. this will become the first rectangle of unwritten memory.
+    # 4. then increment i to the one found in the first list of filled words
+    # 5. 
 
 def find_best_fit(word):
     """
@@ -150,7 +157,6 @@ def generate_puzzle(type, level):
     first_word = "THANJAVUR"
     find_best_fit(first_word)
     print_matrix()
-
 
     # for the biggest word pick the corners across/down
     print("****************************************")
