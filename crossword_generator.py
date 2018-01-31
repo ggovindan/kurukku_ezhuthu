@@ -8,7 +8,10 @@ width, height = 20, 20
 
 puzzle_matrix = [[" " for i in range(width)] for j in range(height)]
 
+# filled_pos = { "dipoza": {'position': (i, j), 'orientation': orientation}}
 filled_pos = {}
+
+free_blocks_across = {}
 
 ACROSS=0
 DOWN=1
@@ -35,8 +38,6 @@ def next_pos_down(x, y, l):
     while (x) < height:
         yield (x, y)
         x += 1
-
-
 
 calculate_next_pos = {ACROSS: next_pos_across,
             DOWN: next_pos_down}
@@ -82,13 +83,38 @@ def find_all_char_pos(s, ch):
     return [i for i, ltr in enumerate(s) if ltr == ch]
 
 
-# An efficient way to calculate blocks of available memory in puzzle_matrix
-def calculate_free_memory():
-    # 1. Get all the starting positions of words filled in so far.
-    # 2. start with (0,0) and increment i,j to the value where the first word is written.
-    # 3. this will become the first rectangle of unwritten memory.
-    # 4. then increment i to the one found in the first list of filled words
-    # 5. 
+def calculate_free_rows():
+    print("dipoza")
+    i,j = 0,0
+
+    for i in range(height):
+        temp = puzzle_matrix[i]
+        # find continous chunk of free memory in this row
+        before = 0
+        max_count = 0
+        start_j = 0
+        temp_count = 0
+        for j,c in enumerate(temp):
+            if c == ' ':
+                temp_count += 1
+            else:
+                if temp_count > max_count:
+                    max_count = temp_count
+                    start_j = j - max_count
+                    print("max_count={} i={} j={}".format(max_count, i, start_j))
+                start_j = j + 1
+                temp_count = 0
+        if temp_count > max_count:
+            # End of row or if entire block is free is gets missed
+            max_count = temp_count
+
+        if free_blocks_across.get(max_count):
+            free_blocks_across[max_count].append((i,start_j))
+        else:
+            free_blocks_across[max_count] = [(i, start_j)]
+
+    print(free_blocks_across)
+
 
 def find_best_fit(word):
     """
@@ -106,7 +132,7 @@ def find_best_fit(word):
         print("will_fit: {}".format(will_fit[ACROSS](x, y, len(word))))
         if will_fit[ACROSS](x, y, len(word)):
             fill_word_in_matrix(word, ACROSS, (x,y))
-            return
+            return {word: (x,y)}
 
     # first find the location where it overlaps.. then move to the other ones to keep it interesting
     for key in filled_pos:
@@ -138,55 +164,42 @@ def find_best_fit(word):
                         if will_fit[pos](a[0], a[1], len(word)):
                             if not check_overlap(word, pos, a[0], a[1]):
                                 fill_word_in_matrix(word, pos, (a[0], a[1]))
-                                return
+                                calculate_free_rows()
+                                return {word: (a[0], a[1])}
+    # if we are still here then we havent found a place for this word
+    # fill it in an empty space
+    print("@@@@@@filling a random across")
+    for key, val in sorted(free_blocks_across.items()):
+        if key > len(word):
+            pos = random.choice(val)
+            fill_word_in_matrix(word, ACROSS, (pos))
+            return {word: (pos)}
 
+puzzles = [
+"KANCHIPURAM",
+"THIRUVANNAMALAI",
+"THANJAVUR",
+"MADURAI",
+"KANYAKUMARI",
+"KUMBAKONAM",
+"KAILASH",
+"AGNI",
+"PARVATHY",
+"THIRUKATTUPALLI",
+"SAMAYAPURAM",
+"NAMAKKAL",
+"PALANI",
+"MAHABALIPURAM"
+]
 
 def generate_puzzle(type, level):
     # first_word = get_word(type='cities', length=8, level=level)
-    print("****************************************")
-    second_word = "KANCHIPURAN"
-    find_best_fit(second_word)
-    print_matrix()
-
-    print("****************************************")
-    second_word = "THIRUVANNAMALAI"
-    find_best_fit(second_word)
-    print_matrix()
-
-    print("****************************************")
-    first_word = "THANJAVUR"
-    find_best_fit(first_word)
-    print_matrix()
-
-    # for the biggest word pick the corners across/down
-    print("****************************************")
-    third_word = "MADURAI"
-    find_best_fit(third_word)
-    print_matrix()
-
-    print("****************************************")
-    third_word = "KANYAKUMARI"
-    find_best_fit(third_word)
-    print_matrix()
-
-    print("****************************************")
-    third_word = "KUMBAKONAM"
-    find_best_fit(third_word)
-    print_matrix()
-
-    print("****************************************")
-    third_word = "KAILASH"
-    find_best_fit(third_word)
-    print_matrix()
-
-    print("****************************************")
-    third_word = "AGNI"
-    find_best_fit(third_word)
-    print_matrix()
-
-    print("****************************************")
-    third_word = "PARVATHY"
-    find_best_fit(third_word)
-    print_matrix()
+    num_puzzle = len(puzzles) - 1
+    result = []
+    while num_puzzle >= 0:
+        result.append(find_best_fit(puzzles.pop(random.randint(0,num_puzzle))))
+        num_puzzle -= 1
+        print_matrix()
+    print(result)
 
 generate_puzzle("type", 0)
