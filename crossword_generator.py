@@ -134,9 +134,9 @@ def find_best_fit(puzzle, t):
         print("will_fit: {}".format(will_fit[ACROSS](x, y, len(word))))
         if will_fit[ACROSS](x, y, len(word)):
             puzzle['orientation'] = "across"
-            puzzle['position'] = t + 1
-            puzzle['startx'] = x
-            puzzle['starty'] = y
+            # puzzle['position'] = t + 1
+            puzzle['startx'] = x + 1
+            puzzle['starty'] = y + 1
             fill_word_in_matrix(word, ACROSS, (x,y))
             return puzzle
 
@@ -172,22 +172,24 @@ def find_best_fit(puzzle, t):
                                 fill_word_in_matrix(word, pos, (a[0], a[1]))
                                 calculate_free_rows()
                                 puzzle['orientation'] = "down" if pos else "across"
-                                puzzle['position'] = t + 1
-                                puzzle['startx'] = a[0]
-                                puzzle['starty'] = a[1]
+                                # puzzle['position'] = t + 1
+                                puzzle['startx'] = a[0] + 1
+                                puzzle['starty'] = a[1] + 1
                                 return puzzle
     # if we are still here then we havent found a place for this word
     # fill it in an empty space
-    print("@@@@@@filling a random across")
+    print("@@@@@@filling a random across free_blocks_across={}".format(free_blocks_across))
     for key, val in sorted(free_blocks_across.items()):
-        if key > len(word):
-            pos = random.choice(val)
-            fill_word_in_matrix(word, ACROSS, (pos))
-            puzzle['orientation'] = "down" if pos else "across"
-            puzzle['position'] = t + 1
-            puzzle['startx'] = pos[0]
-            puzzle['starty'] = pos[1]
-            return puzzle
+        print("key={} val={}".format(key, val))
+        if key >= len(word):
+            pos = val.pop(random.randint(0, len(val)-1 ))
+            if will_fit[ACROSS](pos[0], pos[1], len(word)) and not check_overlap(word, ACROSS, pos[0], pos[1]):
+                fill_word_in_matrix(word, ACROSS, (pos))
+                puzzle['orientation'] = "across"
+                # puzzle['position'] = t + 1
+                puzzle['startx'] = pos[0] + 1
+                puzzle['starty'] = pos[1] + 1
+                return puzzle
 
 puzzles = [
 {
@@ -245,11 +247,24 @@ def generate_puzzle(type, level):
     # first_word = get_word(type='cities', length=8, level=level)
     num_puzzle = len(puzzles) - 1
     result = []
+    across = 1
+    down = 1
+    calculate_free_rows()
     while num_puzzle >= 0:
         rand_num = random.randint(0,num_puzzle)
         p = puzzles.pop(rand_num)
-        result.append(find_best_fit(p, rand_num))
         num_puzzle -= 1
+        if len(p['answer']) >= width:
+            continue
+        x = find_best_fit(p, rand_num)
+        x['startx'], x['starty'] = x['starty'], x['startx']
+        if x['orientation'] == 'across':
+            x['position'] = across
+            across += 1
+        else:
+            x['position'] = down
+            down += 1
+        result.append(x)
         print_matrix()
     print(result)
 
