@@ -4,7 +4,7 @@ import random
 
 client = MongoClient('mongodb://localhost:27017/')
 
-width, height = 20, 20
+width, height = 15, 15
 
 puzzle_matrix = [[" " for i in range(width)] for j in range(height)]
 
@@ -116,12 +116,14 @@ def calculate_free_rows():
     print(free_blocks_across)
 
 
-def find_best_fit(word):
+def find_best_fit(puzzle, t):
     """
     calculate the best fit for a given word.
     Prefer words with intersections over non intersecting spaces
     :return: position (x, y) in the puzzle_matrix
     """
+
+    word = puzzle['answer']
 
     # if first word
     print(len(filled_pos))
@@ -131,8 +133,12 @@ def find_best_fit(word):
         print("first_word: {} x:{} y:{}".format(word, x, y))
         print("will_fit: {}".format(will_fit[ACROSS](x, y, len(word))))
         if will_fit[ACROSS](x, y, len(word)):
+            puzzle['orientation'] = "across"
+            puzzle['position'] = t + 1
+            puzzle['startx'] = x
+            puzzle['starty'] = y
             fill_word_in_matrix(word, ACROSS, (x,y))
-            return {word: (x,y)}
+            return puzzle
 
     # first find the location where it overlaps.. then move to the other ones to keep it interesting
     for key in filled_pos:
@@ -165,7 +171,11 @@ def find_best_fit(word):
                             if not check_overlap(word, pos, a[0], a[1]):
                                 fill_word_in_matrix(word, pos, (a[0], a[1]))
                                 calculate_free_rows()
-                                return {word: (a[0], a[1])}
+                                puzzle['orientation'] = "down" if pos else "across"
+                                puzzle['position'] = t + 1
+                                puzzle['startx'] = a[0]
+                                puzzle['starty'] = a[1]
+                                return puzzle
     # if we are still here then we havent found a place for this word
     # fill it in an empty space
     print("@@@@@@filling a random across")
@@ -173,23 +183,62 @@ def find_best_fit(word):
         if key > len(word):
             pos = random.choice(val)
             fill_word_in_matrix(word, ACROSS, (pos))
-            return {word: (pos)}
+            puzzle['orientation'] = "down" if pos else "across"
+            puzzle['position'] = t + 1
+            puzzle['startx'] = pos[0]
+            puzzle['starty'] = pos[1]
+            return puzzle
 
 puzzles = [
-"KANCHIPURAM",
-"THIRUVANNAMALAI",
-"THANJAVUR",
-"MADURAI",
-"KANYAKUMARI",
-"KUMBAKONAM",
-"KAILASH",
-"AGNI",
-"PARVATHY",
-"THIRUKATTUPALLI",
-"SAMAYAPURAM",
-"NAMAKKAL",
-"PALANI",
-"MAHABALIPURAM"
+{
+"answer": "KANCHIPURAM",
+"clue": "purusheshu vishnu nagareshu ____"
+},
+{"answer": "THIRUVANNAMALAI",
+"clue": "muthai thiru pathhi thirunagai"
+},
+{"answer": "THANJAVUR",
+"clue": "Granary of south india"
+},
+{"answer": "MADURAI",
+"clue": "kannagi hates this place"
+},
+{"answer": "KANYAKUMARI",
+"clue": "vivekananda meditated here"
+},
+{"answer": "KUMBAKONAM",
+"clue": "city of temples"
+},
+{"answer": "KAILASH",
+"clue": "Heaven on earth"
+},
+{"answer": "THIRUKATTUPALLI",
+"clue": "agneeshwarar kovil"
+},
+{"answer": "SAMAYAPURAM",
+"clue": "mariamman"
+},
+{"answer": "NAMAKKAL",
+"clue": "Growing hanuman lives here"
+},
+{"answer": "PALANI",
+"clue": "famous avvaiyar incident took place here"
+},
+{"answer": "MAHABALIPURAM",
+"clue": "sivakamiyin sabatham"
+},
+{"answer": "THIRUCHENDUR",
+"clue": "Murugan killed surapadman and came here"
+},
+{"answer": "RAMESHWARAM",
+"clue": "Sri Raman worshipped Shiva here"
+},
+{"answer": "TIRUPATHI",
+"clue": "7 hills"
+},
+{"answer": "THIRUVARUR",
+"clue": "Shri Thyagaraja was born here"
+}
 ]
 
 def generate_puzzle(type, level):
@@ -197,7 +246,9 @@ def generate_puzzle(type, level):
     num_puzzle = len(puzzles) - 1
     result = []
     while num_puzzle >= 0:
-        result.append(find_best_fit(puzzles.pop(random.randint(0,num_puzzle))))
+        rand_num = random.randint(0,num_puzzle)
+        p = puzzles.pop(rand_num)
+        result.append(find_best_fit(p, rand_num))
         num_puzzle -= 1
         print_matrix()
     print(result)
