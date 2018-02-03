@@ -193,55 +193,77 @@ def find_best_fit(puzzle, t):
 
 puzzles = [
 {
-"answer": "KANCHIPURAM",
-"clue": "purusheshu vishnu nagareshu ____"
+    "answer": "ARJUN",
+    "clue": "best archer of the pandavas"
 },
-{"answer": "THIRUVANNAMALAI",
-"clue": "muthai thiru pathhi thirunagai"
+{
+    "answer": "KUNTHI",
+    "clue": "mother of three of the pandavas"
 },
-{"answer": "THANJAVUR",
-"clue": "Granary of south india"
+{
+    "answer": "GATOTHGAJAN",
+    "clue": "son of bheema"
 },
-{"answer": "MADURAI",
-"clue": "kannagi hates this place"
+{
+    "answer": "DWARAKA",
+    "clue": "palace of krishna"
 },
-{"answer": "KANYAKUMARI",
-"clue": "vivekananda meditated here"
-},
-{"answer": "KUMBAKONAM",
-"clue": "city of temples"
-},
-{"answer": "KAILASH",
-"clue": "Heaven on earth"
-},
-{"answer": "THIRUKATTUPALLI",
-"clue": "agneeshwarar kovil"
-},
-{"answer": "SAMAYAPURAM",
-"clue": "mariamman"
-},
-{"answer": "NAMAKKAL",
-"clue": "Growing hanuman lives here"
-},
-{"answer": "PALANI",
-"clue": "famous avvaiyar incident took place here"
-},
-{"answer": "MAHABALIPURAM",
-"clue": "sivakamiyin sabatham"
-},
-{"answer": "THIRUCHENDUR",
-"clue": "Murugan killed surapadman and came here"
-},
-{"answer": "RAMESHWARAM",
-"clue": "Sri Raman worshipped Shiva here"
-},
-{"answer": "TIRUPATHI",
-"clue": "7 hills"
-},
-{"answer": "THIRUVARUR",
-"clue": "Shri Thyagaraja was born here"
-}
-]
+{
+    "answer": "SHAKUNI",
+    "clue": "master of dice game"
+}]
+
+# puzzles = [
+# {
+# "answer": "KANCHIPURAM",
+# "clue": "purusheshu vishnu nagareshu ____"
+# },
+# {"answer": "THIRUVANNAMALAI",
+# "clue": "muthai thiru pathhi thirunagai"
+# },
+# {"answer": "THANJAVUR",
+# "clue": "Granary of south india"
+# },
+# {"answer": "MADURAI",
+# "clue": "kannagi hates this place"
+# },
+# {"answer": "KANYAKUMARI",
+# "clue": "vivekananda meditated here"
+# },
+# {"answer": "KUMBAKONAM",
+# "clue": "city of temples"
+# },
+# {"answer": "KAILASH",
+# "clue": "Heaven on earth"
+# },
+# {"answer": "THIRUKATTUPALLI",
+# "clue": "agneeshwarar kovil"
+# },
+# {"answer": "SAMAYAPURAM",
+# "clue": "mariamman"
+# },
+# {"answer": "NAMAKKAL",
+# "clue": "Growing hanuman lives here"
+# },
+# {"answer": "PALANI",
+# "clue": "famous avvaiyar incident took place here"
+# },
+# {"answer": "MAHABALIPURAM",
+# "clue": "sivakamiyin sabatham"
+# },
+# {"answer": "THIRUCHENDUR",
+# "clue": "Murugan killed surapadman and came here"
+# },
+# {"answer": "RAMESHWARAM",
+# "clue": "Sri Raman worshipped Shiva here"
+# },
+# {"answer": "TIRUPATHI",
+# "clue": "7 hills"
+# },
+# {"answer": "THIRUVARUR",
+# "clue": "Shri Thyagaraja was born here"
+# }
+# ]
 
 def generate_puzzle(type, level):
     # first_word = get_word(type='cities', length=8, level=level)
